@@ -1,0 +1,51 @@
+* {
+	box-sizing: border-box;
+}
+
+ul {
+	list-style: none;
+}
+
+.g-left {
+	float: left;
+}
+
+.g-centertext {
+	text-align: center;
+}
+
+.clearfix:after {
+	clear: both;
+	content: '';
+	display: block;
+	height: 0;
+}
+
+body {
+	font-size: 24px;
+}
+
+.wrapper {
+	width: 400px;
+	margin: 0 auto;
+}
+
+#b-settimer {
+	text-align: center;
+}
+
+.less, .more {
+	cursor: pointer;
+	display: inline-block;
+	opacity: 0.6;
+	width: 30px;
+}
+
+.less:hover, .more:hover {
+	opacity: 1;
+}
+
+.easy {
+	float: left;
+	width: 50%;
+}
