@@ -1,0 +1,31 @@
+#field {
+  background: #E6E6FA;
+  border: 1px solid #68228B;
+  height: 602px;
+  width: 602px;
+}
+
+.cell {
+/*  border-bottom: 1px solid #000;
+  border-right: 1px solid #000;*/
+  float: left;
+  font-size: 10px;
+  height: 20px;
+  width: 20px;
+}
+
+.insect {
+  background: url(../img/mouse.png) no-repeat;
+  background-size: 100%;
+}
+
+.snake {
+  background: #CD96CD;
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.head {
+  background: #68228B;
+  border-radius: 3px;
+}
