@@ -8,11 +8,207 @@
     <body>
         <!-- Поле для фильтрации по городу -->
         <input
+            id="search" 
             type="text"
             placeholder="Город отправления"
             value=""
             onkeyup="this.setAttribute('value', this.value)">
-
         <!-- Здесь применять вашу самую сильную магию -->
+        <label for="arrival">Прилет</label>
+        <input id="arrival" name="arr-dep" type="radio">
+        <label for="depart">Вылет</label>
+        <input id="depart" name="arr-dep" type="radio">
+        <label for="all">Все рейсы</label>
+        <input id="all" name="arr-dep" type="radio">
+
+        <table class="scoreboard">
+            <tr>
+                <th>Тип рейса</th>
+                <th>Номер рейса</th>
+                <th>Авиакомпания</th>
+                <th>Логотип авиакомпании</th>
+                <th>Тип воздушного судна</th>
+                <th>Аэропорт назначения</th>
+                <th>Плановое время вылета/прилета</th>
+                <th>Номер терминала</th>
+                <th>Статус рейса</th>
+            </tr>
+            <tr class="scoreboard__flight depart">
+                <td>Отправление</td>
+                <td>N4&nbsp;8301</td>
+                <td>Nordwind Airlines</td>
+                <td class="flight__company-logo flight__company-logo--nordwind">&nbsp;</td>
+                <td>Boeing&nbsp;767-300</td>
+                <td>Благовещенск</td>
+                <td>20:25</td>
+                <td>D</td>
+                <td>задерживается до 00:10</td>
+            </tr>
+            <tr class="scoreboard__flight depart">
+                <td>Отправление</td>
+                <td>N4&nbsp;8302</td>
+                <td>Аэрофлот</td>
+                <td class="flight__company-logo flight__company-logo--aeroflot">&nbsp;</td>
+                <td>Boeing&nbsp;767</td>
+                <td>а/п имени Франца Йозефа</td>
+                <td>19:20</td>
+                <td>Е</td>
+                <td>ожидается</td>
+            </tr>
+            <tr class="scoreboard__flight depart">
+                <td>Отправление</td>
+                <td>SU&nbsp;1184</td>
+                <td>Аэрофлот</td>
+                <td class="flight__company-logo flight__company-logo--aeroflot">&nbsp;</td>
+                <td>Airbus&nbsp;А320</td>
+                <td>Гумрак</td>
+                <td>00:25</td>
+                <td>A</td>
+                <td>Вылетел</td>
+            </tr>
+            <tr class="scoreboard__flight arrival" data-town="Riga">
+                <td>Прибытие</td>
+                <td>SU&nbsp;2229</td>
+                <td>Аэрофлот</td>
+                <td class="flight__company-logo flight__company-logo--aeroflot">&nbsp;</td>
+                <td>Airbus&nbsp;320</td>
+                <td>Шереметьево</td>
+                <td>22:00</td>
+                <td>D</td>
+                <td>летит</td>
+            </tr>
+            <tr class="scoreboard__flight arrival" data-town="Riga">
+                <td>Прибытие</td>
+                <td>N4&nbsp;1612</td>
+                <td>Nordwind&nbsp;Airlines</td>
+                <td class="flight__company-logo flight__company-logo--nordwind">&nbsp;</td>
+                <td>Airbus&nbsp;320</td>
+                <td>Шереметьево</td>
+                <td>10:30</td>
+                <td>D</td>
+                <td>приземлился</td>
+            </tr>
+            <tr class="scoreboard__flight depart">
+                <td>Отправление</td>
+                <td>BT&nbsp;423</td>
+                <td>Air&nbsp;Baltic</td>
+                <td class="flight__company-logo flight__company-logo--baltic">&nbsp;</td>
+                <td>Boeing&nbsp;737-300</td>
+                <td>Рига</td>
+                <td>20:00</td>
+                <td>С</td>
+                <td>ожидается</td>
+            </tr>
+            <tr class="scoreboard__flight depart">
+                <td>Отправление</td>
+                <td>BT&nbsp;1423</td>
+                <td>Air&nbsp;Baltic</td>
+                <td class="flight__company-logo flight__company-logo--baltic">&nbsp;</td>
+                <td>Boeing&nbsp;737-300</td>
+                <td>Рига</td>
+                <td>11:00</td>
+                <td>В</td>
+                <td>регистрация</td>
+            </tr>
+            <tr class="scoreboard__flight arrival" data-town="Prague">
+                <td>Прибытие</td>
+                <td>FOK&nbsp;4904</td>
+                <td>Czech&nbsp;Airlines</td>
+                <td class="flight__company-logo flight__company-logo--czech">&nbsp;</td>
+                <td>Airbus&nbsp;А321</td>
+                <td>Шереметьево</td>
+                <td>21:25</td>
+                <td>В</td>
+                <td>ожидается</td>
+            </tr>
+            <tr class="scoreboard__flight depart">
+                <td>Отправление</td>
+                <td>BJ&nbsp;853</td>
+                <td>Уральские&nbsp;авиалинии</td>
+                <td class="flight__company-logo flight__company-logo--ural">&nbsp;</td>
+                <td>Airbus&nbsp;А321,</td>
+                <td>Хаммамет</td>
+                <td>03:15</td>
+                <td>D</td>
+                <td>ожидается</td>
+            </tr>
+            <tr class="scoreboard__flight arrival" data-town="Riga">
+                <td>Прибытие</td>
+                <td>FOK&nbsp;5504</td>
+                <td>Czech&nbsp;Airlines</td>
+                <td class="flight__company-logo flight__company-logo--czech">&nbsp;</td>
+                <td>Airbus&nbsp;А320</td>
+                <td>Шереметьево</td>
+                <td>21:25</td>
+                <td>В</td>
+                <td>ожидается</td>
+            </tr>
+            <tr class="scoreboard__flight depart">
+                <td>Отправление</td>
+                <td>FOK&nbsp;5504</td>
+                <td>Czech Airlines</td>
+                <td class="flight__company-logo flight__company-logo--czech">&nbsp;</td>
+                <td>Airbus&nbsp;А320</td>
+                <td>а/п имени Вацлава Гавела</td>
+                <td>21:25</td>
+                <td>В</td>
+                <td>ожидается</td>
+            </tr>
+            <tr class="scoreboard__flight depart">
+                <td>Отправление</td>
+                <td>BT&nbsp;1423</td>
+                <td>Air&nbsp;Baltic</td>
+                <td class="flight__company-logo flight__company-logo--baltic">&nbsp;</td>
+                <td>Boeing&nbsp;737-300</td>
+                <td>Рига</td>
+                <td>20:40</td>
+                <td>В</td>
+                <td>регистрация</td>
+            </tr>
+            <tr class="scoreboard__flight depart">
+                <td>Отправление</td>
+                <td>BT&nbsp;1423</td>
+                <td>Air&nbsp;Baltic</td>
+                <td class="flight__company-logo flight__company-logo--baltic">&nbsp;</td>
+                <td>Boeing&nbsp;737-300</td>
+                <td>Рига</td>
+                <td>20:40</td>
+                <td>В</td>
+                <td>регистрация</td>
+            </tr>
+            <tr class="scoreboard__flight arrival" data-town="Нью-Йорк">
+                <td>Прибытие</td>
+                <td>SU&nbsp;220</td>
+                <td>Аэрофлот</td>
+                <td class="flight__company-logo flight__company-logo--aeroflot">&nbsp;</td>
+                <td>Airbus&nbsp;320</td>
+                <td>Шереметьево</td>
+                <td>14:00</td>
+                <td>F</td>
+                <td>ожидается</td>
+            </tr>
+            <tr class="scoreboard__flight depart">
+                <td>Отправление</td>
+                <td>SU&nbsp;1442</td>
+                <td>Аэрофлот</td>
+                <td class="flight__company-logo flight__company-logo--aeroflot">&nbsp;</td>
+                <td>Boeing&nbsp;737-300</td>
+                <td>Рига</td>
+                <td>13:00</td>
+                <td>D</td>
+                <td>регистрация</td>
+            </tr>
+            <tr class="scoreboard__flight arrival" data-town="Madrid">
+                <td>Прибытие</td>
+                <td>SU&nbsp;2327</td>
+                <td>Аэрофлот</td>
+                <td class="flight__company-logo flight__company-logo--aeroflot">&nbsp;</td>
+                <td>Airbus&nbsp;320</td>
+                <td>Шереметьево</td>
+                <td>21:30</td>
+                <td>D</td>
+                <td>ожидается</td>
+            </tr>
+        </table>
     </body>
 </html>
