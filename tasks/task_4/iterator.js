@@ -146,19 +146,16 @@ function sortCollection(collection, start, depth) {
     (function addNodes(length, oldLength) {
         oldLength = oldLength || 0; // we need this values because of possible infinity as depth
         depth -= 1; // next level of our search
-        currentNode = currentNode.filter(function (friend) {
-            return collection[friend]; // we know, that some friend may disappear...
-        }).map(function (friend) {
-            return collection[friend].friends.sort();
-        }).reduce(function (array, friends) {
-            return array.concat(friends);
-        }, []);
+
+        currentNode = currentNode
+        .filter((friend) => collection[friend]) // we know, that some friend may disappear...
+        .map((friend) => collection[friend].friends.sort())
+        .reduce((array, friends) => array.concat(friends), []);
 
         sortedFriends.push(currentNode);
 
-        sortedFriends = sortedFriends.reduce(function (array, friends) {
-            return array.concat(friends);
-        }, []).reduce(function (array, friend) {
+        sortedFriends = sortedFriends.reduce((array, friends) => array.concat(friends), [])
+        .reduce(function (array, friend) {
             // we need to fliter again, cause deleted friends may stay in someone's friendslist
             if (array.indexOf(friend) === -1 && friend !== start && collection[friend]) {
                 return array.concat(friend);
@@ -168,7 +165,7 @@ function sortCollection(collection, start, depth) {
         }, []);
 
         length = sortedFriends.length;
-        // if length doesn't change, that means all possible friends are present... I guess...
+        // if length doesn't change, all possible friends are present... I guess...
         (length === oldLength) ? depth = 0 : oldLength = length;
 
 
