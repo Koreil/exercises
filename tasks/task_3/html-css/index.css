@@ -1,0 +1,139 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial;
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+}
+
+.scoreboard 
+{   
+    border: 2px solid #5D478B;  
+    border-radius: 5px;
+    border-spacing: 0;      
+    margin: 0 auto;
+    overflow: hidden;
+    text-align: center;
+    width: 95%;
+}
+
+.scoreboard td 
+{
+    height: 50px;
+    padding: 5px;
+    position: relative;
+    width: 11%;
+}
+
+.scoreboard th 
+{
+    border-bottom: 1px solid #5D478B;
+    padding: 10px 5px;
+}
+
+.scoreboard tr:nth-child(odd) 
+{
+    background: rgba(97, 87, 70, .3);
+}
+
+.scoreboard tr:hover 
+{
+    background: #CDB5CD;
+}
+
+td:hover:before 
+{
+    background: #CDB5CD;
+    content: '';
+    display: block;
+    position: absolute;
+    height: 10000px;
+    top: -5000px;   
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+}
+
+label 
+{
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#arrival, 
+#depart, 
+#all {
+    display: block;
+    margin: 0 auto;
+}
+
+#depart:checked ~ table .arrival 
+{
+    display: none;
+}
+
+#arrival:checked ~ table .depart 
+{
+    display: none;
+};
+
+#all:checked ~ table tr 
+{
+    display: table-row;
+}
+
+#search[value^="Ри"] ~ table tr:not([data-town="Riga"])
+{
+    display: none;
+}
+
+#search[value^="Мад"] ~ table tr:not([data-town="Madrid"])
+{
+    display: none;
+}
+
+#search[value^="Пра"] ~ table tr:not([data-town="Prague"])
+{
+    display: none;
+}
+
+#search {
+    display: block;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    width: 20%;
+}
+
+.flight__company-logo 
+{
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+
+.flight__company-logo--nordwind 
+{
+    background-image: url(logos/nordwind.png);
+}
+
+.flight__company-logo--aeroflot 
+{
+    background-image: url(logos/aeroflot.jpg);
+}
+
+.flight__company-logo--baltic 
+{
+    background-image: url(logos/airbaltic.jpg);
+}
+
+.flight__company-logo--czech 
+{
+    background-image: url(logos/czech.jpg);
+}
+
+.flight__company-logo--ural 
+{
+    background-image: url(logos/ural.jpg);
+}
