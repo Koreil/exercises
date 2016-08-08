@@ -1,4 +1,184 @@
 'use strict';
 
 module.exports.get = function (collection, startPoint, depth) {
+    return new Iterator(collection, startPoint, depth);
 };
+
+/**
+ * Creates a new Iterator
+ * @class
+ * @param {Object} collection - our faceBook
+ * @param {String} startPoing - name of person we start by
+ * @param {Number} depth - search depth
+ */
+function Iterator(collection, startPoint, depth) {
+    this._collection = collection;
+    this._depth = depth || Infinity;
+    this._start = startPoint;
+    this._currentFriend;
+
+    if (!isInFacebook(this._collection, this._start)) {
+        console.log('No such person in faceBook');
+        process.exit(1);
+    }
+};
+
+Iterator.prototype.next = searchIn('next');
+Iterator.prototype.prev = searchIn('prev');
+Iterator.prototype.nextMale = searchIn('next', 1);
+Iterator.prototype.prevMale = searchIn('prev', 1);
+
+/**
+ * Presents contact as JSON
+ * @param {Object} collection - our faceBook
+ * @param {String} name - name of contact
+ * @returns {JSON}
+ */
+function contactToJSON(collection, name) {
+    var contact = {
+        name: name,
+        phone: collection[name].phone
+    };
+
+    return JSON.stringify(contact);
+}
+
+/**
+ * Cheks if contact is present in faceBook
+ * @param {Object} collection - our faceBook
+ * @param {String} name - name of contact
+ * @returns {Boolean}
+ */
+function isInFacebook(collection, name) {
+    if (!collection[name]) {
+        console.log('No such person in faceBook');
+        return false;
+    } else {
+        return true;
+    }
+}
+
+/**
+ * Cheks if we can go back in our search
+ * @param {Number} index - index of current friend
+ * @param {Number} step - step defines our direction, 1 - forward, -1 back
+ * @param {Object} collection - our faceBook
+ * @returns {Boolean}
+ */
+function isFirst(index, step, collection) {
+    return Boolean(step === -1 && index === 0);
+}
+
+/**
+ * Cheks if we can go forward in our search
+ * @param {Number} index - index of current friend
+ * @param {Number} step - step defines our direction, 1 - forward, -1 back
+ * @param {Object} collection - our faceBook
+ * @returns {Boolean}
+ */
+function isLast(index, step, collection) {
+    return Boolean(step === 1 && index === (collection.length - 1));
+}
+
+/**
+ * Looks for next or previous friend
+ * @param {String} direction - we need next or previous friend
+ * @param {Number} gender - 1 is for male
+ * @returns {JSON}
+ */
+function searchIn(direction, gender) {
+
+    var step = (direction === 'next') ? 1 : -1;
+
+
+    return function walkInside(name) {
+        if (name && isInFacebook(this._collection, name)) {
+            this._currentFriend = name;
+            console.log(contactToJSON(this._collection, name));
+            return contactToJSON(this._collection, name);
+        }
+
+        var index;
+        var result;
+        var collect = sortCollection(this._collection, this._start, this._depth);
+
+        if (this._currentFriend) {
+
+            index = collect.indexOf(this._currentFriend);
+
+            if (isLast(index, step, collect) || isFirst(index, step, collect)) {
+                return null;
+            }
+
+            this._currentFriend = collect[index + step];
+
+            while (gender && this._collection[this._currentFriend].gender !== 'Мужской') {
+
+                if (isLast(index, step, collect) || isFirst(index, step, collect)) {
+                    return null;
+                }
+
+                index = index + step;
+                this._currentFriend = collect[index];
+            }
+
+        } else {
+            this._currentFriend = collect[0];
+
+        }
+        console.log(contactToJSON(this._collection, this._currentFriend));
+        return contactToJSON(this._collection, this._currentFriend);
+    };
+}
+
+/**
+ * Looks for next or previous friend
+ * @param {String} direction - we need next or previous friend
+ * @param {Number} gender - 1 is for male
+ * @returns {JSON}
+ */
+function sortCollection(collection, start, depth) {
+    var sortedFriends = []; // this array is for sorted collection
+    var currentNode = [start]; // our current node (we start by first person)
+
+    //  ...and here hides my worst nightmare, be prepared... TODO: do something with this =\
+
+    (function addNodes(length, oldLength) {
+        oldLength = oldLength || 0; // we need this values because of possible infinity as depth
+        depth -= 1; // next level of our search
+        currentNode = currentNode.filter(function (friend) {
+            return collection[friend]; // we know, that some friend may disappear...
+        }).map(function (friend) {
+            return collection[friend].friends.sort();
+        }).reduce(function (array, friends) {
+            return array.concat(friends);
+        }, []);
+
+        sortedFriends.push(currentNode);
+
+        sortedFriends = sortedFriends.reduce(function (array, friends) {
+            return array.concat(friends);
+        }, []).reduce(function (array, friend) {
+            // we need to fliter again, cause deleted friends may stay in someone's friendslist
+            if (array.indexOf(friend) === -1 && friend !== start && collection[friend]) {
+                return array.concat(friend);
+            } else {
+                return array;
+            }
+        }, []);
+
+        length = sortedFriends.length;
+        // if length doesn't change, that means all possible friends are present... I guess...
+        (length === oldLength) ? depth = 0 : oldLength = length;
+
+
+        if (!depth) {
+            return;
+        } else {
+            addNodes(length, oldLength);
+        }
+    })();
+
+    return sortedFriends;
+
+}
