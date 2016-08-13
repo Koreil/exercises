@@ -13,7 +13,6 @@ module.exports = function () {
         on: function (eventName, student, callback) {
             this[eventName] = this[eventName] || [];
             this[eventName].push(student);
-
             student[eventName] = {
                 eventName: eventName,
                 callback: callback.bind(student),
@@ -23,12 +22,11 @@ module.exports = function () {
             };
 
             if (arguments.length > 3) {
-                var eventName = student[eventName];
                 var restraint = arguments[3];
                 if (restraint.isLimited) {
-                    eventName.limit = restraint.lim;
+                    student[eventName].limit = restraint.lim;
                 } else {
-                    eventName.divider = restraint.div;
+                    student[eventName].divider = restraint.div;
                 }
             }
         },
@@ -77,10 +75,10 @@ module.exports = function () {
          */
         several: function (eventName, student, callback, n) {
             var args = [].slice.call(arguments);
-            args.push({
+            args[3] = {
                 isLimited: true,
                 lim: n
-            });
+            };
             this.on.apply(null, args);
         },
         /**
@@ -92,10 +90,10 @@ module.exports = function () {
          */
         through: function (eventName, student, callback, n) {
             var args = [].slice.call(arguments);
-            args.push({
+            args[3] = {
                 isLimited: false,
                 div: n
-            });
+            };
             this.on.apply(this, args);
         }
     };
