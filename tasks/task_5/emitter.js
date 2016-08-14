@@ -36,8 +36,26 @@ module.exports = function () {
          * @param {Object} student - student we're unsubscribing
          */
         off: function (eventName, student) {
-            delete student[eventName];
-            this[eventName].splice(this[eventName].indexOf(student), 1);
+            var that = this;
+            if (eventName.indexOf('.') === -1) {
+                var emitterProps = Object.keys(that);
+                var studentProps = Object.keys(student);
+
+                studentProps.forEach(prop => {
+                    if (prop.indexOf(eventName) !== -1) {
+                        delete student[prop];
+                    }
+                });
+
+                emitterProps.forEach(prop => {
+                    if (prop.indexOf(eventName) !== -1) {
+                        that[prop].splice(that[prop].indexOf(student), 1);
+                    }
+                });
+            } else {
+                delete student[eventName];
+                that[eventName].splice(that[eventName].indexOf(student), 1);
+            }
         },
         /**
          * Emits event and provokes appropriate reaction
