@@ -121,7 +121,7 @@ function searchIn(direction, isMale) {
 }
 
 /**
- * Return sorted collection
+ * Returns sorted collection
  * @param {Object} collection - our faceBook
  * @param {String} start - person we're starting by
  * @param {Number} depth - search depth
@@ -152,8 +152,10 @@ function sortCollection(collection, start, depth) {
         sortedFriends = sortedFriends // we add current node to final collection
             .concat(currentNode)
             // we don't need repeats
-            // and we don't need to invite ourselves (compare friend with startPoint)
-            // we don't need friends who was deleted from faceBook (if is in collection)
+            // and we don't need to invite ourselves (so we compare friend with startPoint)
+            // also we don't need friends who were deleted from faceBook 
+            // we need to check it again, because they can stay in someone's friends list 
+            //(we look if friend is in collection)
             .reduce(function (array, friend) {
                 if (array.indexOf(friend) === -1 && friend !== start && collection[friend]) {
                     return array.concat(friend);
