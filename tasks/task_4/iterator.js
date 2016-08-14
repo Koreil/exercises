@@ -60,25 +60,16 @@ function hasFriends(collection, name) {
 }
 
 /**
- * Checks if we can go back in our search
+ * Checks if we can go back of forward in our search
  * @param {Number} index - index of current friend
- * @param {Number} step - step defines our direction, 1 - forward, -1 back
- * @param {Object} collection - our faceBook
+ * @param {Number} step - step defines our direction, 1 - forward, -1 - back
+ * @param {Object} collection - list of friends we want invite
  * @returns {Boolean}
  */
-function isFirst(index, step, collection) {
-    return Boolean(step === -1 && index === 0);
-}
-
-/**
- * Checks if we can go forward in our search
- * @param {Number} index - index of current friend
- * @param {Number} step - step defines our direction, 1 - forward, -1 back
- * @param {Object} collection - our faceBook
- * @returns {Boolean}
- */
-function isLast(index, step, collection) {
-    return Boolean(step === 1 && index === (collection.length - 1));
+function isEdge(index, step, collection) {
+    var isFirst = Boolean(step === -1 && index === 0);
+    var isLast = Boolean(step === 1 && index === (collection.length - 1));
+    return Boolean(isLast || isFirst);
 }
 
 /**
@@ -99,35 +90,30 @@ function searchIn(direction, gender) {
         }
 
         var index;
-        var result;
-        var collect = sortCollection(this._collection, this._start, this._depth);
+        var friendsList = sortCollection(this._collection, this._start, this._depth);
 
-        if (!collect) {
+        if (!friendsList) {
             return null;
         }
+
+        if (gender) {
+            friendslist = friendsList.filter(friend => {
+                return this._collection[friend].gender === 'Мужской';
+            });
+        }
+
         if (this._currentFriend) {
 
-            index = collect.indexOf(this._currentFriend);
+            index = friendsList.indexOf(this._currentFriend);
 
-            if (isLast(index, step, collect) || isFirst(index, step, collect)) {
+            if (isEdge(index, step, friendsList)) {
                 return null;
             }
 
-            this._currentFriend = collect[index + step];
-
-            while (gender && this._collection[this._currentFriend].gender !== 'Мужской') {
-
-                if (isLast(index, step, collect) || isFirst(index, step, collect)) {
-                    return null;
-                }
-
-                index = index + step;
-                this._currentFriend = collect[index];
-            }
+            this._currentFriend = friendsList[index + step];
 
         } else {
-            this._currentFriend = collect[0];
-
+            this._currentFriend = friendsList[0];
         }
 
         return formatContact(this._collection, this._currentFriend);
@@ -162,7 +148,7 @@ function sortCollection(collection, start, depth) {
 
         sortedFriends = sortedFriends.reduce((array, friends) => array.concat(friends), [])
         .reduce(function (array, friend) {
-            // we need to fliter again, cause deleted friends may stay in someone's friendslist
+            // we need to filter again, cause deleted friends may stay in someone's friendslist
             if (array.indexOf(friend) === -1 && friend !== start && collection[friend]) {
                 return array.concat(friend);
             } else {
