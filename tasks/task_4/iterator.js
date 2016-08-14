@@ -24,10 +24,10 @@ Iterator.prototype.nextMale = searchIn('next', 1);
 Iterator.prototype.prevMale = searchIn('prev', 1);
 
 /**
- * Presents contact as JSON
+ * Returns contact's name and phone
  * @param {Object} collection - our faceBook
  * @param {String} name - name of contact
- * @returns {JSON}
+ * @returns {Object}
  */
 function formatContact(collection, name) {
     var contact = {
@@ -60,7 +60,7 @@ function hasFriends(collection, name) {
 }
 
 /**
- * Cheks if we can go back in our search
+ * Checks if we can go back in our search
  * @param {Number} index - index of current friend
  * @param {Number} step - step defines our direction, 1 - forward, -1 back
  * @param {Object} collection - our faceBook
@@ -71,7 +71,7 @@ function isFirst(index, step, collection) {
 }
 
 /**
- * Cheks if we can go forward in our search
+ * Checks if we can go forward in our search
  * @param {Number} index - index of current friend
  * @param {Number} step - step defines our direction, 1 - forward, -1 back
  * @param {Object} collection - our faceBook
