@@ -16,11 +16,6 @@ function Iterator(collection, startPoint, depth) {
     this._depth = depth || Infinity;
     this._start = startPoint;
     this._currentFriend;
-
-    if (!isInFacebook(this._collection, this._start)) {
-        console.log('No such person in faceBook');
-        process.exit(1);
-    }
 };
 
 Iterator.prototype.next = searchIn('next');
@@ -34,28 +29,34 @@ Iterator.prototype.prevMale = searchIn('prev', 1);
  * @param {String} name - name of contact
  * @returns {JSON}
  */
-function contactToJSON(collection, name) {
+function formatContact(collection, name) {
     var contact = {
         name: name,
         phone: collection[name].phone
     };
 
-    return JSON.stringify(contact);
+    return contact;
 }
 
 /**
- * Cheks if contact is present in faceBook
+ * Checks if person is present in faceBook
  * @param {Object} collection - our faceBook
- * @param {String} name - name of contact
+ * @param {String} name - person
  * @returns {Boolean}
  */
 function isInFacebook(collection, name) {
-    if (!collection[name]) {
-        console.log('No such person in faceBook');
-        return false;
-    } else {
-        return true;
-    }
+    return Boolean(collection[name]);
+}
+
+/**
+ * Checks if person has friends
+ * @param {Object} collection - our faceBook
+ * @param {String} name - person
+ * @returns {Boolean}
+ */
+function hasFriends(collection, name) {
+    var friends = collection[name].friends;
+    return Boolean(friends.length);
 }
 
 /**
@@ -94,14 +95,16 @@ function searchIn(direction, gender) {
     return function walkInside(name) {
         if (name && isInFacebook(this._collection, name)) {
             this._currentFriend = name;
-            console.log(contactToJSON(this._collection, name));
-            return contactToJSON(this._collection, name);
+            return formatContact(this._collection, name);
         }
 
         var index;
         var result;
         var collect = sortCollection(this._collection, this._start, this._depth);
 
+        if (!collect) {
+            return null;
+        }
         if (this._currentFriend) {
 
             index = collect.indexOf(this._currentFriend);
@@ -126,8 +129,8 @@ function searchIn(direction, gender) {
             this._currentFriend = collect[0];
 
         }
-        console.log(contactToJSON(this._collection, this._currentFriend));
-        return contactToJSON(this._collection, this._currentFriend);
+
+        return formatContact(this._collection, this._currentFriend);
     };
 }
 
@@ -138,6 +141,9 @@ function searchIn(direction, gender) {
  * @returns {JSON}
  */
 function sortCollection(collection, start, depth) {
+    if (!isInFacebook(collection, start) || !hasFriends(collection, start)) {
+        return null;
+    }
     var sortedFriends = []; // this array is for sorted collection
     var currentNode = [start]; // our current node (we start by first person)
 
@@ -177,5 +183,4 @@ function sortCollection(collection, start, depth) {
     })();
 
     return sortedFriends;
-
 }
