@@ -11,8 +11,10 @@ module.exports = function () {
          * @param {requestCallback} callback - student's reaction on event
          */
         on: function (eventName, student, callback) {
+            // we need list of students, who will respond on event
             this[eventName] = this[eventName] || [];
             this[eventName].push(student);
+            // now student must have reaction on emitted event
             student[eventName] = {
                 eventName: eventName,
                 callback: callback.bind(student),
@@ -20,13 +22,13 @@ module.exports = function () {
                 limit: Infinity,
                 divider: 1
             };
-
+            // there can possibly be some restrictions
             if (arguments.length > 3) {
                 var restraint = arguments[3];
                 if (restraint.isLimited) {
-                    student[eventName].limit = restraint.lim;
+                    student[eventName].limit = restraint.limit;
                 } else {
-                    student[eventName].divider = restraint.div;
+                    student[eventName].divider = restraint.divider;
                 }
             }
         },
@@ -36,9 +38,11 @@ module.exports = function () {
          * @param {Object} student - student we're unsubscribing
          */
         off: function (eventName, student) {
-            var that = this;
+            var emitter = this;
+            // if there is no dot in eventName, that's the first level event
+            // so we must unsubscribe student from all related events
             if (eventName.indexOf('.') === -1) {
-                var emitterProps = Object.keys(that);
+                var emitterProps = Object.keys(emitter);
                 var studentProps = Object.keys(student);
 
                 studentProps.forEach(prop => {
@@ -49,12 +53,12 @@ module.exports = function () {
 
                 emitterProps.forEach(prop => {
                     if (prop.indexOf(eventName) !== -1) {
-                        that[prop].splice(that[prop].indexOf(student), 1);
+                        emitter[prop].splice(emitter[prop].indexOf(student), 1);
                     }
                 });
             } else {
                 delete student[eventName];
-                that[eventName].splice(that[eventName].indexOf(student), 1);
+                emitter[eventName].splice(emitter[eventName].indexOf(student), 1);
             }
         },
         /**
@@ -62,13 +66,13 @@ module.exports = function () {
          * @param {String} eventName - event we're emitting
          */
         emit: function (eventName) {
-            var that = this;
-            if (that[eventName] && that[eventName].length) {
-                var students = that[eventName];
+            var emitter = this;
+            if (emitter[eventName] && emitter[eventName].length) {
+                var students = emitter[eventName];
                 students.forEach(student => {
                     student[eventName].counter++;
                     if (student[eventName].counter > student[eventName].limit) {
-                        that.off(eventName, student);
+                        emitter.off(eventName, student);
                         return;
                     }
                     if (student[eventName].counter % student[eventName].divider !== 0) {
@@ -85,7 +89,7 @@ module.exports = function () {
 
         },
         /**
-         * Subscribes student on event
+         * Subscribes student on event which can be emitted only several times
          * @param {String} eventName - event we're subscribing studend on
          * @param {Object} student - student we're subscribing on event
          * @param {requestCallback} callback - student's reaction on event
@@ -95,12 +99,12 @@ module.exports = function () {
             var args = [].slice.call(arguments);
             args[3] = {
                 isLimited: true,
-                lim: n
+                limit: n
             };
             this.on.apply(null, args);
         },
         /**
-         * Subscribes student on event
+         * Subscribes student on event which can be emitted only through several times
          * @param {String} eventName - event we're subscribing studend on
          * @param {Object} student - student we're subscribing on event
          * @param {requestCallback} callback - student's reaction on event
@@ -110,9 +114,9 @@ module.exports = function () {
             var args = [].slice.call(arguments);
             args[3] = {
                 isLimited: false,
-                div: n
+                divider: n
             };
-            this.on.apply(this, args);
+            this.on.apply(null, args);
         }
     };
 };
