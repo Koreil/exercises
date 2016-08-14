@@ -20,8 +20,8 @@ function Iterator(collection, startPoint, depth) {
 
 Iterator.prototype.next = searchIn('next');
 Iterator.prototype.prev = searchIn('prev');
-Iterator.prototype.nextMale = searchIn('next', 1);
-Iterator.prototype.prevMale = searchIn('prev', 1);
+Iterator.prototype.nextMale = searchIn('next', true);
+Iterator.prototype.prevMale = searchIn('prev', true);
 
 /**
  * Returns contact's name and phone
@@ -75,10 +75,10 @@ function isEdge(index, step, collection) {
 /**
  * Looks for next or previous friend
  * @param {String} direction - we need next or previous friend
- * @param {Number} gender - 1 is for male
- * @returns {JSON}
+ * @param {Boolean} isMale - if we neew only guys
+ * @returns {Object}
  */
-function searchIn(direction, gender) {
+function searchIn(direction, isMale) {
 
     var step = (direction === 'next') ? 1 : -1;
 
@@ -96,9 +96,9 @@ function searchIn(direction, gender) {
             return null;
         }
 
-        if (gender) {
-            friendslist = friendsList.filter(friend => {
-                return this._collection[friend].gender === 'Мужской';
+        if (isMale) {
+            friendsList = friendsList.filter(friendName => {
+                return this._collection[friendName].gender === 'Мужской';
             });
         }
 
@@ -115,58 +115,67 @@ function searchIn(direction, gender) {
         } else {
             this._currentFriend = friendsList[0];
         }
-
+        console.log(formatContact(this._collection, this._currentFriend));
         return formatContact(this._collection, this._currentFriend);
     };
 }
 
 /**
- * Looks for next or previous friend
- * @param {String} direction - we need next or previous friend
- * @param {Number} gender - 1 is for male
- * @returns {JSON}
+ * Return sorted collection
+ * @param {Object} collection - our faceBook
+ * @param {String} start - person we're starting by
+ * @param {Number} depth - search depth
+ * @returns {String[]} - friends names in assigned order
  */
 function sortCollection(collection, start, depth) {
     if (!isInFacebook(collection, start) || !hasFriends(collection, start)) {
         return null;
     }
     var sortedFriends = []; // this array is for sorted collection
-    var currentNode = [start]; // our current node (we start by first person)
+    var currentNode = [start]; // currentNode represents friends of this level of depth
 
-    //  ...and here hides my worst nightmare, be prepared... TODO: do something with this =\
-
-    (function addNodes(length, oldLength) {
-        oldLength = oldLength || 0; // we need this values because of possible infinity as depth
-        depth -= 1; // next level of our search
+    (function addNodes(currentLength, lastLength) {
+        // our sorted collection length before we go to the next depth level
+        // (0, if we have just begun)
+        lastLength = lastLength || 0;
+        depth -= 1; // we have begun the next level of our search
 
         currentNode = currentNode
-        .filter((friend) => collection[friend]) // we know, that some friend may disappear...
-        .map((friend) => collection[friend].friends.sort())
-        .reduce((array, friends) => array.concat(friends), []);
+            // we leave only those friends who are present in our faceBook
+            .filter((friend) => collection[friend])
+            // we need to return friends friends (new level)
+            // sorted by alphabet
+            .map((friend) => collection[friend].friends.sort())
+            // concat array to one-dimentional
+            .reduce((array, friends) => array.concat(friends), []);
 
-        sortedFriends.push(currentNode);
-
-        sortedFriends = sortedFriends.reduce((array, friends) => array.concat(friends), [])
-        .reduce(function (array, friend) {
-            // we need to filter again, cause deleted friends may stay in someone's friendslist
-            if (array.indexOf(friend) === -1 && friend !== start && collection[friend]) {
-                return array.concat(friend);
-            } else {
-                return array;
-            }
-        }, []);
-
-        length = sortedFriends.length;
-        // if length doesn't change, all possible friends are present... I guess...
-        (length === oldLength) ? depth = 0 : oldLength = length;
+        sortedFriends = sortedFriends // we add current node to final collection
+            .concat(currentNode)
+            // we don't need repeats
+            // and we don't need to invite ourselves (compare friend with startPoint)
+            // we don't need friends who was deleted from faceBook (if is in collection)
+            .reduce(function (array, friend) {
+                if (array.indexOf(friend) === -1 && friend !== start && collection[friend]) {
+                    return array.concat(friend);
+                } else {
+                    return array;
+                }
+            }, []);
+        // sorted collection length after next depth level
+        currentLength = sortedFriends.length;
+        // if length doesn't change, that means that all possible friends
+        // are already added (any new friends), so we can stop our search
+        // by setting depth = 0 (provokes return)
+        // if lenght still increasing, we rewrite oldLength with the last result
+        (currentLength === lastLength) ? depth = 0 : lastLength = currentLength;
 
 
         if (!depth) {
             return;
         } else {
-            addNodes(length, oldLength);
+            addNodes(currentLength, lastLength);
         }
     })();
 
-    return sortedFriends;
+    return sortedFriends; // {String[]}, sorted friends names
 }
