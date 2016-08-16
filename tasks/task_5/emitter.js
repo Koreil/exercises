@@ -11,24 +11,23 @@ module.exports = function () {
          * @param {requestCallback} callback - student's reaction on event
          */
         on: function (eventName, student, callback) {
-            // we need list of students, who will respond on event
+            // in this emitter property we will save students, who will react on event
             this[eventName] = this[eventName] || [];
             this[eventName].push(student);
-            // now student must have reaction on emitted event
+            // we assign appropriate reaction to mentioned student
             student[eventName] = {
-                eventName: eventName,
-                callback: callback.bind(student),
+                reaction: callback.bind(student),
                 counter: 0,
                 limit: Infinity,
                 divider: 1
             };
-            // there can possibly be some restrictions
+            // there can possibly be some restrictions in extra-argument
             if (arguments.length > 3) {
-                var restraint = arguments[3];
-                if (restraint.isLimited) {
-                    student[eventName].limit = restraint.limit;
+                var restriction = arguments[3];
+                if (restriction.isLimit) {
+                    student[eventName].limit = restriction.limit;
                 } else {
-                    student[eventName].divider = restraint.divider;
+                    student[eventName].divider = restriction.divider;
                 }
             }
         },
@@ -42,16 +41,16 @@ module.exports = function () {
             // if there is no dot in eventName, that's the first level event
             // so we must unsubscribe student from all related events
             if (eventName.indexOf('.') === -1) {
-                var emitterProps = Object.keys(emitter);
-                var studentProps = Object.keys(student);
+                var emitterPropsList = Object.keys(emitter);
+                var studentPropsList = Object.keys(student);
 
-                studentProps.forEach(prop => {
+                studentPropsList.forEach(prop => {
                     if (prop.indexOf(eventName) !== -1) {
                         delete student[prop];
                     }
                 });
 
-                emitterProps.forEach(prop => {
+                emitterPropsList.forEach(prop => {
                     if (prop.indexOf(eventName) !== -1) {
                         emitter[prop].splice(emitter[prop].indexOf(student), 1);
                     }
@@ -78,7 +77,7 @@ module.exports = function () {
                     if (student[eventName].counter % student[eventName].divider !== 0) {
                         return;
                     }
-                    student[eventName].callback();
+                    student[eventName].reaction();
                 });
 
             }
@@ -98,7 +97,7 @@ module.exports = function () {
         several: function (eventName, student, callback, n) {
             var args = [].slice.call(arguments);
             args[3] = {
-                isLimited: true,
+                isLimit: true,
                 limit: n
             };
             this.on.apply(null, args);
@@ -113,7 +112,7 @@ module.exports = function () {
         through: function (eventName, student, callback, n) {
             var args = [].slice.call(arguments);
             args[3] = {
-                isLimited: false,
+                isLimit: false,
                 divider: n
             };
             this.on.apply(null, args);
