@@ -2,22 +2,28 @@
 
 var moment = require('./moment');
 
-// Выбирает подходящий ближайший момент начала ограбления
+/**
+* Выбирает подходящий ближайший момент начала ограбления
+* @param {Object[]} json - расписание членов банды =)
+* @param {Number} minDuration - минимальное количество времени, требуемого для ограбления
+* @param {Object} workingHours - рабочие часы банка, от и до
+*/
 module.exports.getAppropriateMoment = function (json, minDuration, workingHours) {
     var appropriateMoment = moment();
     var reviver = appropriateMoment.reviver();
+    var possibleDays = appropriateMoment.daysLeft;
     // 1. Читаем json
     // 2. Находим подходящий ближайший момент начала ограбления
     // 3. И записываем в appropriateMoment
-
+    // С помощью reviver превращаю строки начала и конца интервалов в число ms
     var busyTimeShedule = JSON.parse(json, reviver);
     var badGuys = Object.keys(busyTimeShedule);
-    var possibleDays = appropriateMoment.daysLeft;
-    // перевожу интервалы в миллисекунды и сортирую по возрастанию (см. sortBusyIntervalsMs)
-
+    // создаю массив интервалов и сортирую интервалы в нем по возрастанию
     var busyIntervalsMs = sortBusyIntervals(badGuys, busyTimeShedule);
-
+    // мне нужны часы работы банка в конкретные дни
     var bankSheduleByDays = getBankSheduleByDays(possibleDays, workingHours);
+    // мне нужен reviver, чтобы представить интервалы, когда банк открыт, тоже в ms
+    // поэтому сначала приходится превращать расписание в JSON
     bankSheduleByDays = JSON.stringify(bankSheduleByDays);
     bankSheduleByDays = JSON.parse(bankSheduleByDays, reviver);
 
@@ -29,7 +35,7 @@ module.exports.getAppropriateMoment = function (json, minDuration, workingHours)
             var prevBusyInt = busyIntervalsMs[i];
             var nextBusyInt = busyIntervalsMs[i + 1];
             // если между концом первого интервала и началом следующего достаточно времени
-            if (isLongEnough(prevBusyInt.to, nextBusyInt.to, minDuration)) {
+            if (isLongEnough(prevBusyInt.to, nextBusyInt.from, minDuration)) {
                 // тогда это может быть подходящим моментом
                 robberyMoment = {
                     from: prevBusyInt.to,
@@ -39,7 +45,7 @@ module.exports.getAppropriateMoment = function (json, minDuration, workingHours)
                 // (я исходила из мысли, что ограбление может начаться и за минуту до закрытия,
                 // ведь двери должны быть открыты, чтобы войти)
                 if (hasCrossing(robberyMoment, workingDay) &&
-                workingDay.from <= robberyMoment.from) {
+                    workingDay.from <= robberyMoment.from) {
                     return robberyMoment;
                 }
             }
@@ -50,7 +56,12 @@ module.exports.getAppropriateMoment = function (json, minDuration, workingHours)
     return appropriateMoment;
 };
 
-// Возвращает статус ограбления (этот метод уже готов!)
+/**
+* Возвращает статус ограбления (этот метод уже готов!)
+* @param {Object} moment
+* @param {Object} robberMoment
+* @returns {Number} || {String}
+*/
 module.exports.getStatus = function (moment, robberyMoment) {
     if (moment.date < robberyMoment.date) {
         // «До ограбления остался 1 день 6 часов 59 минут»
@@ -60,18 +71,32 @@ module.exports.getStatus = function (moment, robberyMoment) {
     return 'Ограбление уже идёт!';
 };
 
+/** Проверяет, соответствует ли интервал минимальной длительности
+* @param {Number} begin - начало интервала в ms
+* @param {Number} end - конец интервала в ms
+* @param {Number} duration - минимальная длительность
+* @returns {Boolean} - соответствует или нет
+*/
 function isLongEnough(begin, end, duration) {
     return Boolean(end - begin >= duration);
 }
 
-// Собирает интервалы воедино, переводит в ms и сортирует
+/** Собирает интервалы воедино, переводит в ms и сортирует
+* @param {Array} badGuys - участники ограбления
+* @param {Object[]} shedule - расписание занятости участников
+* @returns {Array} - одномерный массив отсортированных по порядку интервалов
+*/
 function sortBusyIntervals(badGuys, shedule) {
     return badGuys
             .reduce((intervals, guy) => intervals.concat(shedule[guy]), [])
             .sort((prevInt, nextInt) => prevInt.from - nextInt.from);
 }
 
-// Проверяет интервалы на пересечения
+/** Проверяет интервалы на пересечения
+* @param {Object} int0
+* @param {Object} int1
+* @returns {Boolean} - есть пересечения или нет
+*/
 function hasCrossing(int0, int1) {
     if (int0.from > int1.to) {
         return false;
@@ -83,7 +108,12 @@ function hasCrossing(int0, int1) {
     return true;
 }
 
-// Возвращает для каждого дня интервал, когда банк открыт
+/** Возвращает для каждого дня интервал, когда банк открыт
+* @param {Array} days - массив дней, которые нас интересуют
+* @param {Object} workingHours - рабочие часы банка
+* @returns {Object[]} - интревал рабочих часов банка в конкретные дни,
+* начало и конце интревала - строки
+*/
 function getBankSheduleByDays(days, workingHours) {
     return days.map(day => {
         return {
