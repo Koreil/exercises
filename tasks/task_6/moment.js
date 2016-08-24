@@ -18,7 +18,8 @@ module.exports = function () {
         */
         set date(value) {
             if (typeof value === 'string') {
-                this.UTCDateMs = this.dateParser(value);
+                var dateParser = this.dateParser();
+                this.UTCDateMs = dateParser(value); 
             } else {
                 this.UTCDateMs = value;
             }
@@ -26,7 +27,8 @@ module.exports = function () {
         get date() {
             if (this.timezone) {
                 var UTCHours = new Date(this.UTCDateMs).getUTCHours();
-                return new Date(this.UTCDateMs).setUTCHours(UTCHours - this.timezone);
+                var date = new Date(this.UTCDateMs).setUTCHours(UTCHours - this.timezone);
+                return date.getTime();
             }
             return this.UTCDateMs;
         },
