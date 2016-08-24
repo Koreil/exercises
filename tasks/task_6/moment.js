@@ -18,8 +18,7 @@ module.exports = function () {
         */
         set date(value) {
             if (typeof value === 'string') {
-                var dateParser = this.dateParser();
-                this.UTCDateMs = dateParser(value); 
+                this.UTCDateMs = this.dateParser(value);
             } else {
                 this.UTCDateMs = value;
             }
@@ -27,8 +26,7 @@ module.exports = function () {
         get date() {
             if (this.timezone) {
                 var UTCHours = new Date(this.UTCDateMs).getUTCHours();
-                var date = new Date(this.UTCDateMs).setUTCHours(UTCHours - this.timezone);
-                return date.getTime();
+                return new Date(this.UTCDateMs).setUTCHours(UTCHours - this.timezone).getTime();
             }
             return this.UTCDateMs;
         },
@@ -87,59 +85,46 @@ module.exports = function () {
             return alarm;
         },
         /**
-         * Возвращает функцию, которая преобразует строку вида 'ПН 12:59+5' в дату в ms
-         * @returns {Function}
-        */
-        dateParser: function () {
-            var week = this.week;
-            /**
-            * Преобразует строку вида 'ПН 12:59+5' и возвращает дату в ms
-            * @param {String} dateString - дата в виде строки
-            * @returns {Number} - дата в ms
-            */
-            return function (dateString) {
-                var datePartsRegExp = /^([А-Я]{0,2})\s?(\d{2}):(\d{2})([+-]\d{1,2})$/;
-                var dateParts = datePartsRegExp.exec(dateString);
-                var parsedDate = new Date();
+         * Преобразует строку вида 'ПН 12:59+5' и возвращает дату в ms
+         * @param {String} dateString - дата в виде строки
+         * @returns {Number} - дата в ms
+         */
+        dateParser: function (dateString) {
+            var datePartsRegExp = /^([А-Я]{0,2})\s?(\d{2}):(\d{2})([+-]\d{1,2})$/;
+            var dateParts = datePartsRegExp.exec(dateString);
+            var parsedDate = new Date();
 
-                var day = week.indexOf(dateParts[1]);
+            var day = this.week.indexOf(dateParts[1]);
 
-                // получаем ближайший соответвующий день (например, ближайший понедельник)
-                if (parsedDate.getDay()) {
-                    day = parsedDate.getDate() + 7 - parsedDate.getDay() + day;
-                } else {
-                    day = parsedDate.getDate() + day;
-                }
+            // получаем ближайший соответвующий день (например, ближайший понедельник)
+            if (parsedDate.getDay()) {
+                day = parsedDate.getDate() + 7 - parsedDate.getDay() + day;
+            } else {
+                day = parsedDate.getDate() + day;
+            }
 
-                var timezone = dateParts[4];
-                var hours = parseInt(dateParts[2]) - timezone;
-                var minutes = parseInt(dateParts[3]);
+            var timezone = dateParts[4];
+            var hours = parseInt(dateParts[2]) - timezone;
+            var minutes = parseInt(dateParts[3]);
 
 
-                parsedDate.setUTCDate(day);
-                parsedDate.setUTCHours(hours, minutes, 0);
+            parsedDate.setUTCDate(day);
+            parsedDate.setUTCHours(hours, minutes, 0);
 
-                return parsedDate.getTime();
-            };
+            return parsedDate.getTime();
+
         },
         /**
-        * Возвращает функцию, восстанавливающую дату из JSON
-        * @returns {Function}
-        */
-        reviver: function () {
-            var dateParser = this.dateParser();
-            /**
-            * Применяет функцию dateParser к строкам, обозначающим начало и конец интервала
-            * @param {String} key
-            * @param {String} value
-            * @returns {Number} - дата в ms
-            */
-            return function (key, value) {
-                if (key === 'from' || key === 'to') {
-                    return dateParser(value);
-                }
-                return value;
-            };
+         * Применяет функцию dateParser к строкам, обозначающим начало и конец интервала
+         * @param {String} key
+         * @param {String} value
+         * @returns {Number} - дата в ms
+         */
+        reviver: function (key, value) {
+            if (key === 'from' || key === 'to') {
+                return this.dateParser(value);
+            }
+            return value;
         },
         /**
         * Создает грамматически верное (надеюсь)) словосочетание

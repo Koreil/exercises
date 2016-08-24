@@ -10,7 +10,7 @@ var moment = require('./moment');
 */
 module.exports.getAppropriateMoment = function (json, minDuration, workingHours) {
     var appropriateMoment = moment();
-    var reviver = appropriateMoment.reviver();
+    var reviver = appropriateMoment.reviver.bind(appropriateMoment);
     var possibleDays = appropriateMoment.daysLeft;
     // 1. Читаем json
     // 2. Находим подходящий ближайший момент начала ограбления
@@ -39,7 +39,7 @@ module.exports.getAppropriateMoment = function (json, minDuration, workingHours)
                 // тогда это может быть подходящим моментом
                 robberyMoment = {
                     from: prevBusyInt.to,
-                    to: nextBusyInt.to
+                    to: nextBusyInt.from
                 };
                 // но необходимо, чтобы это было после открытия банка и в его рабочие часы
                 // (я исходила из мысли, что ограбление может начаться и за минуту до закрытия,
